@@ -118,12 +118,14 @@ export class PowerSchoolSave {
   private headless: boolean
   private maxTabs: number
   private tabs?: Tabs
+  private format: 'pdf' | 'png'
 
-  constructor (root: string, out: string, opts: { headless?: boolean, maxTabs?: number }) {
+  constructor (root: string, out: string, opts: { headless?: boolean, maxTabs?: number, format?: 'pdf' | 'png' }) {
     this.root = root
     this.out = out
     this.headless = opts.headless !== false
     this.maxTabs = opts.maxTabs ?? 5
+    this.format = opts.format ?? 'pdf'
   }
 
   async login (strategy: LoginStrategy) {
@@ -212,8 +214,12 @@ export class PowerSchoolSave {
           continue
         }
   
-        const pageOut = path.join(pagesOut, sanitizeFilename(`${pad(i)} ${page.title}`)) + '.pdf'
-        if (this.headless) await tab.pdf({ path: pageOut, width: 1920, height: 1920 })
+        const pageOut = path.join(pagesOut, sanitizeFilename(`${pad(i)} ${page.title}`))
+        if (this.format === 'pdf') {
+          if (this.headless) await tab.pdf({ path: pageOut + '.pdf', width: 1920, height: 1920 })
+        } else if (this.format === 'png') {
+          await tab.screenshot({ path: pageOut + '.png', fullPage: true })
+        }
   
         await tab.close()
   
@@ -251,8 +257,12 @@ export class PowerSchoolSave {
       const title = await titleTd.evaluate((td: any) => td.innerText)
       const date = new Date(await dateTd.evaluate((td: any) => td.innerText))
 
-      const messageOut = path.join(inboxOut, sanitizeFilename(`${date.toISOString()} ${title}`) + '.pdf')
-      if (this.headless) await tab.pdf({ path: messageOut, width: 1920, height: 1920 })
+      const messageOut = path.join(inboxOut, sanitizeFilename(`${date.toISOString()} ${title}`))
+      if (this.format === 'pdf') {
+        if (this.headless) await tab.pdf({ path: messageOut + '.pdf', width: 1920, height: 1920 })
+      } else if (this.format === 'png') {
+        await tab.screenshot({ path: messageOut + '.png', fullPage: true })
+      }
 
       await close.click()
 
@@ -281,8 +291,12 @@ export class PowerSchoolSave {
       const title = await titleBox.evaluate((td: any) => td.value)
       const id = await idBox.evaluate((td: any) => td.value)
 
-      const messageOut = path.join(draftsOut, sanitizeFilename(`${title} (${id})`) + '.pdf')
-      if (this.headless) await tab.pdf({ path: messageOut, width: 1920, height: 1920 })
+      const messageOut = path.join(draftsOut, sanitizeFilename(`${title} (${id})`))
+      if (this.format === 'pdf') {
+        if (this.headless) await tab.pdf({ path: messageOut + '.pdf', width: 1920, height: 1920 })
+      } else if (this.format === 'png') {
+        await tab.screenshot({ path: messageOut + '.png', fullPage: true })
+      }
 
       await close.click()
 
@@ -321,8 +335,12 @@ export class PowerSchoolSave {
       const title = await assignment.evaluate((a: any) => a.innerText)
       await assignment.click()
       const close = assertExists(await tab.waitForSelector('input.button[value="Close"]', { visible: true }))
-      const assignmentOut = path.join(assignmentsOut, sanitizeFilename(`${title}`) + '.pdf')
-      if (this.headless) await tab.pdf({ path: assignmentOut, width: 1920, height: 1920 })
+      const assignmentOut = path.join(assignmentsOut, sanitizeFilename(`${title}`))
+      if (this.format === 'pdf') {
+        if (this.headless) await tab.pdf({ path: assignmentOut + '.pdf', width: 1920, height: 1920 })
+      } else if (this.format === 'png') {
+        await tab.screenshot({ path: assignmentOut + '.png', fullPage: true })
+      }
       
       const viewWork = await tab.$('#tb_handin_button + a')
       if (viewWork) {
@@ -345,8 +363,12 @@ export class PowerSchoolSave {
     await tab.goto(href)
     await tab.waitForSelector('#TB_ajaxContent', { visible: true })
 
-    const workOut = path.join(assignmentsOut, sanitizeFilename(`${title} (Work)`) + '.pdf')
-    if (this.headless) await tab.pdf({ path: workOut, width: 1920, height: 1920 })
+    const workOut = path.join(assignmentsOut, sanitizeFilename(`${title} (Work)`) + '.' + this.format)
+    if (this.format === 'pdf') {
+      if (this.headless) await tab.pdf({ path: workOut, width: 1920, height: 1920 })
+    } else if (this.format === 'png') {
+      await tab.screenshot({ path: workOut, fullPage: true })
+    }
 
     await tab.close()
 
@@ -391,8 +413,12 @@ export class PowerSchoolSave {
           await tab.waitForSelector('#dsc_all_posts', { hidden: true })
         }
 
-        const threadOut = path.join(discussionOut, sanitizeFilename(`${op}`)) + '.pdf'
-        if (this.headless) await tab.pdf({ path: threadOut, width: 1920, height: 1920 })
+        const threadOut = path.join(discussionOut, sanitizeFilename(`${op}`))
+        if (this.format === 'pdf') {
+          if (this.headless) await tab.pdf({ path: threadOut + '.pdf', width: 1920, height: 1920 })
+        } else if (this.format === 'png') {
+          await tab.screenshot({ path: threadOut + '.png', fullPage: true })
+        }
         console.log('Saved', title, op)
       }
 
@@ -409,8 +435,12 @@ export class PowerSchoolSave {
 
     await tab.waitForSelector('.brubrics', { hidden: true })
 
-    const gradebooksOut = path.join(classOut, 'Gradebooks') + '.pdf'
-    if (this.headless) await tab.pdf({ path: gradebooksOut, width: 1920, height: 1920 })
+    const gradebooksOut = path.join(classOut, 'Gradebooks')
+    if (this.format === 'pdf') {
+      if (this.headless) await tab.pdf({ path: gradebooksOut + '.pdf', width: 1920, height: 1920 })
+    } else if (this.format === 'png') {
+      await tab.screenshot({ path: gradebooksOut + '.png', fullPage: true })
+    }
     console.log('Saved gradebooks')
 
     await tab.close()
