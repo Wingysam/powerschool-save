@@ -1,0 +1,23 @@
+{
+  "name": "powerschool-save",
+  "version": "1.0.0",
+  "description": "Log into PowerSchool Learning then save all data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Wingy <git@wingysam.xyz>",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "puppeteer": "^13.6.0",
+    "typescript": "^4.6.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.13.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.1.0",
+    "eslint-plugin-promise": "^6.0.0"
+  }
+}
